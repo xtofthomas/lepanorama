@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Mini-Golf du Panorama — Esneux</title>
+<style>
+  :root{
+    --sky-top: #bcd9e6;
+    --sky-bottom: #e8ecd8;
+    --hill-far: #7f9c7a;
+    --hill-near: #5f8259;
+    --river: #9cc2c9;
+    --castle-wall: #e4d9be;
+    --castle-roof: #47506b;
+    --canopy-dark: #2f4a30;
+    --canopy: #3d6640;
+    --trunk: #4a3524;
+    --grass-a: #4c7a4a;
+    --grass-b: #46734a;
+    --path: #b98a5a;
+    --path-edge: #8a6238;
+    --stone: #9a9284;
+    --stone-dark: #746c5f;
+    --mortar: #cfc7b6;
+    --ball: #fbf9f2;
+    --ball-shadow: rgba(20,25,10,0.28);
+    --flag-red: #9e2b25;
+    --flag-gold: #d8ad3f;
+    --ink: #2a2a20;
+    --paper: #f4efe1;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #24322a;
+    font-family: 'Courier New', Consolas, monospace;
+    color: var(--ink);
+    overflow: hidden;
+    touch-action: none;
+  }
+  #app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 12px;
+    gap: 8px;
+  }
+  h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--paper);
+    font-size: 22px;
+    margin: 0;
+    letter-spacing: .5px;
+  }
+  #hud {
+    display: flex;
+    width: 100%;
+    max-width: 800px;
+    justify-content: space-between;
+    align-items: baseline;
+    letter-spacing: 1.5px;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--paper);
+    border-bottom: 2px dashed rgba(244,239,225,.45);
+    padding-bottom: 6px;
+  }
+  #hud span b { font-size: 15px; color: #fff; }
+  #holeName {
+    font-style: italic;
+    font-family: Georgia, serif;
+    color: #f0e6c8;
+  }
+  #stage {
+    position: relative;
+    border: 6px solid #3a2a1a;
+    outline: 2px solid #6b4a2a;
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  }
+  canvas { display: block; cursor: crosshair; }
+  #msg {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: rgba(20,26,16,0.72);
+    text-align: center;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  #msg.show { display: flex; }
+  #msg .big {
+    font-size: 26px;
+    font-weight: bold;
+    color: #f6e9c4;
+    font-family: Georgia, serif;
+    font-style: italic;
+    text-shadow: 0 2px 4px rgba(0,0,0,.6);
+  }
+  #msg .small { font-size: 12px; color: #ddd; opacity: .85; }
+  #footer {
+    font-size: 11px;
+    letter-spacing: 1px;
+    opacity: .75;
+    text-transform: uppercase;
+    color: var(--paper);
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>Mini-Golf du Panorama <span style="opacity:.6">· Esneux</span></h1>
+  <div id="hud">
+    <span>Trou <b id="holeNo">1</b>/<b id="holeTotal">4</b> — <span id="holeName"></span></span>
+    <span>Coups <b id="strokes">0</b></span>
+    <span>Total <b id="total">0</b></span>
+  </div>
+  <div id="stage">
+    <canvas id="c" width="800" height="470"></canvas>
+    <div id="msg">
+      <div class="big" id="msgBig">TROU !</div>
+      <div class="small" id="msgSmall">clique ou appuie sur ESPACE</div>
+    </div>
+  </div>
+  <div id="footer">clic-glisser sur la balle pour viser · relâche pour frapper · vue sur la boucle de l'Ourthe</div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const TOP = 92;              // hauteur du panorama (décor, non jouable)
+  const R = 8;
+  const HOLE_R = 12;
+  const FRICTION = 0.988;
+  const MIN_SPEED = 0.03;
+  const MAX_DRAG = 130;
+  const POWER = 0.11;
+
+  const msgEl = document.getElementById('msg');
+  const msgBig = document.getElementById('msgBig');
+  const msgSmall = document.getElementById('msgSmall');
+  const strokesEl = document.getElementById('strokes');
+  const totalEl = document.getElementById('total');
+  const holeNoEl = document.getElementById('holeNo');
+  const holeTotalEl = document.getElementById('holeTotal');
+  const holeNameEl = document.getElementById('holeName');
+
+  // obstacles: {type:'rect', x,y,w,h}  ou  {type:'circle', x,y,r}  (le puits)
+  const levels = [
+    {
+      name: "L'Allée des Tilleuls",
+      start: {x: 70, y: TOP + 118},
+      hole:  {x: 720, y: TOP + 118},
+      walls: []
+    },
+    {
+      name: "Le Vieux Puits",
+      start: {x: 70, y: TOP + 30},
+      hole:  {x: 730, y: TOP + 268},
+      walls: [
+        {type:'rect',   x: 330, y: TOP,       w: 26, h: 208},
+        {type:'rect',   x: 330, y: TOP + 268, w: 26, h: 60},
+        {type:'circle', x: 500, y: TOP + 110, r: 22}
+      ]
+    },
+    {
+      name: "Les Remparts",
+      start: {x: 70, y: TOP + 118},
+      hole:  {x: 730, y: TOP + 118},
+      walls: [
+        {type:'rect', x: 250, y: TOP,        w: 26, h: 178},
+        {type:'rect', x: 480, y: TOP + 78,   w: 26, h: 190}
+      ]
+    },
+    {
+      name: 'Le Belvédère',
+      start: {x: 400, y: TOP + 288},
+      hole:  {x: 400, y: TOP + 20},
+      walls: [
+        {type:'rect',   x: 0,   y: TOP + 148, w: 300, h: 26},
+        {type:'rect',   x: 500, y: TOP + 148, w: 300, h: 26},
+        {type:'circle', x: 400, y: TOP + 148, r: 20}
+      ]
+    }
+  ];
+
+  holeTotalEl.textContent = levels.length;
+
+  let levelIndex = 0;
+  let ball = {x:0, y:0, vx:0, vy:0};
+  let strokes = 0;
+  let total = 0;
+  let moving = false;
+  let aiming = false;
+  let dragStart = {x:0, y:0};
+  let dragNow = {x:0, y:0};
+  let finished = false;
+
+  function loadLevel(i){
+    const lvl = levels[i];
+    ball.x = lvl.start.x;
+    ball.y = lvl.start.y;
+    ball.vx = 0; ball.vy = 0;
+    strokes = 0;
+    moving = false;
+    finished = false;
+    strokesEl.textContent = strokes;
+    holeNoEl.textContent = i+1;
+    holeNameEl.textContent = lvl.name;
+    msgEl.classList.remove('show');
+  }
+  loadLevel(levelIndex);
+  function currentLevel(){ return levels[levelIndex]; }
+
+  // --- collisions ---
+  function collideRect(r){
+    const closestX = Math.max(r.x, Math.min(ball.x, r.x + r.w));
+    const closestY = Math.max(r.y, Math.min(ball.y, r.y + r.h));
+    const dx = ball.x - closestX;
+    const dy = ball.y - closestY;
+    const distSq = dx*dx + dy*dy;
+    if (distSq < R*R){
+      const dist = Math.sqrt(distSq) || 0.01;
+      const nx = dx/dist, ny = dy/dist;
+      resolveHit(nx, ny, R - dist);
+    }
+  }
+  function collideCircle(c){
+    const dx = ball.x - c.x, dy = ball.y - c.y;
+    const dist = Math.hypot(dx, dy);
+    const minDist = c.r + R;
+    if (dist < minDist){
+      const nx = dx/(dist||0.01), ny = dy/(dist||0.01);
+      resolveHit(nx, ny, minDist - dist);
+    }
+  }
+  function resolveHit(nx, ny, overlap){
+    ball.x += nx * overlap;
+    ball.y += ny * overlap;
+    const dot = ball.vx*nx + ball.vy*ny;
+    ball.vx -= 2*dot*nx;
+    ball.vy -= 2*dot*ny;
+    ball.vx *= 0.86; ball.vy *= 0.86;
+  }
+  function collideWalls(){
+    const lvl = currentLevel();
+    const borders = [
+      {type:'rect', x:-20, y: TOP-20, w: W+40, h: 20},
+      {type:'rect', x:-20, y: H,      w: W+40, h: 20},
+      {type:'rect', x:-20, y: TOP-20, w: 20, h: H-TOP+40},
+      {type:'rect', x: W,  y: TOP-20, w: 20, h: H-TOP+40}
+    ];
+    for(const o of borders.concat(lvl.walls)){
+      if (o.type === 'circle') collideCircle(o); else collideRect(o);
+    }
+  }
+
+  function update(){
+    if (moving){
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+      ball.vx *= FRICTION;
+      ball.vy *= FRICTION;
+      collideWalls();
+      const speed = Math.hypot(ball.vx, ball.vy);
+      const lvl = currentLevel();
+      const dHole = Math.hypot(ball.x - lvl.hole.x, ball.y - lvl.hole.y);
+      if (dHole < HOLE_R - 3 && speed < 2.2){
+        moving = false;
+        finished = true;
+        total += strokes;
+        totalEl.textContent = total;
+        showMessage();
+        return;
+      }
+      if (speed < MIN_SPEED){ ball.vx = 0; ball.vy = 0; moving = false; }
+    }
+  }
+
+  function showMessage(){
+    const isLast = levelIndex === levels.length - 1;
+    msgBig.textContent = isLast ? 'Parcours terminé !' : 'Dans le trou !';
+    msgSmall.textContent = isLast
+      ? 'total ' + total + ' coups · clique pour recommencer'
+      : 'clique ou ESPACE pour continuer';
+    msgEl.classList.add('show');
+  }
+  function nextOrRestart(){
+    if (!finished) return;
+    if (levelIndex === levels.length - 1){ levelIndex = 0; total = 0; totalEl.textContent = 0; }
+    else levelIndex++;
+    loadLevel(levelIndex);
+  }
+
+  // ===================== DÉCOR =====================
+  function drawBackdrop(){
+    // ciel
+    const sky = ctx.createLinearGradient(0,0,0,TOP);
+    sky.addColorStop(0, getCss('--sky-top'));
+    sky.addColorStop(1, getCss('--sky-bottom'));
+    ctx.fillStyle = sky;
+    ctx.fillRect(0,0,W,TOP);
+
+    // collines lointaines (vallée de l'Ourthe)
+    ctx.fillStyle = getCss('--hill-far');
+    ctx.beginPath();
+    ctx.moveTo(0, TOP);
+    ctx.quadraticCurveTo(150, TOP-40, 320, TOP-20);
+    ctx.quadraticCurveTo(520, TOP-55, W, TOP-15);
+    ctx.lineTo(W, TOP); ctx.closePath(); ctx.fill();
+
+    // la boucle de l'Ourthe (rivière qui serpente au loin)
+    ctx.strokeStyle = getCss('--river');
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(0, TOP-10);
+    ctx.bezierCurveTo(120, TOP-25, 180, TOP-5, 300, TOP-18);
+    ctx.bezierCurveTo(420, TOP-30, 480, TOP-8, W, TOP-20);
+    ctx.stroke();
+
+    // colline proche + rocher portant le château
+    ctx.fillStyle = getCss('--hill-near');
+    ctx.beginPath();
+    ctx.moveTo(0, TOP);
+    ctx.quadraticCurveTo(90, TOP-18, 190, TOP-6);
+    ctx.quadraticCurveTo(300, TOP+6, 430, TOP-2);
+    ctx.quadraticCurveTo(600, TOP-16, W, TOP);
+    ctx.lineTo(W,TOP); ctx.lineTo(0,TOP); ctx.closePath(); ctx.fill();
+
+    drawCastle(280, TOP-18);
+
+    // ligne d'arbres à l'horizon
+    ctx.fillStyle = getCss('--canopy-dark');
+    for(let x = 10; x < W; x += 26){
+      const h = 10 + (x % 3 === 0 ? 6 : 0);
+      ctx.beginPath();
+      ctx.moveTo(x, TOP);
+      ctx.lineTo(x+9, TOP-h);
+      ctx.lineTo(x+18, TOP);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  function drawCastle(cx, baseY){
+    // rocher
+    ctx.fillStyle = getCss('--stone-dark');
+    ctx.beginPath();
+    ctx.moveTo(cx-46, baseY+6);
+    ctx.lineTo(cx-30, baseY-14);
+    ctx.lineTo(cx+34, baseY-16);
+    ctx.lineTo(cx+50, baseY+6);
+    ctx.closePath();
+    ctx.fill();
+
+    const wall = getCss('--castle-wall');
+    const roof = getCss('--castle-roof');
+
+    // corps principal
+    ctx.fillStyle = wall;
+    ctx.fillRect(cx-24, baseY-46, 48, 34);
+    // toiture centrale (gothique, pointue)
+    ctx.fillStyle = roof;
+    ctx.beginPath();
+    ctx.moveTo(cx-28, baseY-46);
+    ctx.lineTo(cx, baseY-76);
+    ctx.lineTo(cx+28, baseY-46);
+    ctx.closePath();
+    ctx.fill();
+
+    // tourelle fine (celle qui "aurait inspiré Disney")
+    ctx.fillStyle = wall;
+    ctx.fillRect(cx-42, baseY-58, 12, 46);
+    ctx.fillStyle = roof;
+    ctx.beginPath();
+    ctx.moveTo(cx-44, baseY-58);
+    ctx.lineTo(cx-36, baseY-82);
+    ctx.lineTo(cx-28, baseY-58);
+    ctx.closePath();
+    ctx.fill();
+
+    // seconde tourelle, plus petite, côté droit
+    ctx.fillStyle = wall;
+    ctx.fillRect(cx+22, baseY-52, 10, 40);
+    ctx.fillStyle = roof;
+    ctx.beginPath();
+    ctx.moveTo(cx+20, baseY-52);
+    ctx.lineTo(cx+27, baseY-72);
+    ctx.lineTo(cx+34, baseY-52);
+    ctx.closePath();
+    ctx.fill();
+
+    // petites fenêtres
+    ctx.fillStyle = '#2a2a20';
+    ctx.fillRect(cx-6, baseY-32, 5, 8);
+    ctx.fillRect(cx+4, baseY-32, 5, 8);
+    ctx.fillRect(cx-38, baseY-40, 4, 6);
+  }
+
+  function drawCourseBase(){
+    // pelouse avec bandes de tonte façon fairway
+    for(let y = TOP; y < H; y += 24){
+      ctx.fillStyle = (Math.floor((y-TOP)/24) % 2 === 0) ? getCss('--grass-a') : getCss('--grass-b');
+      ctx.fillRect(0, y, W, 24);
+    }
+    // bordure "brique pilée" tout autour du parcours
+    ctx.fillStyle = getCss('--path-edge');
+    ctx.fillRect(0, TOP, W, 6);
+    ctx.fillRect(0, H-6, W, 6);
+    ctx.fillRect(0, TOP, 6, H-TOP);
+    ctx.fillRect(W-6, TOP, 6, H-TOP);
+    ctx.fillStyle = getCss('--path');
+    ctx.fillRect(3, TOP+3, W-6, 3);
+    ctx.fillRect(3, H-6, W-6, 3);
+  }
+
+  function drawFrameTrees(){
+    // grands arbres en silhouette qui encadrent la scène (avant-plan)
+    const corners = [
+      {x: -10, y: H, s: 1},
+      {x: W+10, y: H, s: -1},
+      {x: -14, y: TOP+40, s: 1},
+      {x: W+14, y: TOP+40, s: -1}
+    ];
+    for(const c of corners){
+      drawPine(c.x, c.y, 70 * (c.y===H?1:0.6), c.s);
+    }
+  }
+  function drawPine(x, y, size, dir){
+    ctx.fillStyle = getCss('--trunk');
+    ctx.fillRect(x - 4*dir, y - size*0.22, 8, size*0.22);
+    ctx.fillStyle = getCss('--canopy');
+    for(let i=0;i<3;i++){
+      const w = size*0.5 - i*size*0.12;
+      const yy = y - size*0.22 - i*size*0.22;
+      ctx.beginPath();
+      ctx.moveTo(x - w, yy);
+      ctx.lineTo(x + dir*4, yy - size*0.3);
+      ctx.lineTo(x + w, yy);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  function getCss(v){
+    return getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  }
+
+  function drawWalls(){
+    const lvl = currentLevel();
+    for(const o of lvl.walls){
+      if (o.type === 'circle'){
+        drawWell(o);
+      } else {
+        drawStoneWall(o);
+      }
+    }
+  }
+
+  function drawStoneWall(r){
+    ctx.fillStyle = getCss('--stone-dark');
+    ctx.fillRect(r.x, r.y, r.w, r.h);
+    ctx.fillStyle = getCss('--stone');
+    ctx.fillRect(r.x+2, r.y+2, r.w-4, r.h-4);
+    // joints de pierre
+    ctx.strokeStyle = getCss('--mortar');
+    ctx.lineWidth = 1;
+    const rowH = 10;
+    let row = 0;
+    for(let y = r.y+2; y < r.y+r.h-2; y += rowH){
+      ctx.beginPath(); ctx.moveTo(r.x+2, y); ctx.lineTo(r.x+r.w-2, y); ctx.stroke();
+      const offset = (row % 2 === 0) ? 0 : (r.w/2);
+      for(let x = r.x+2+offset; x < r.x+r.w-2; x += r.w){
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, Math.min(y+rowH, r.y+r.h-2)); ctx.stroke();
+      }
+      row++;
+    }
+  }
+
+  function drawWell(c){
+    // margelle en pierre
+    ctx.fillStyle = getCss('--stone-dark');
+    ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = getCss('--stone');
+    ctx.beginPath(); ctx.arc(c.x, c.y, c.r-4, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#1e2a1e';
+    ctx.beginPath(); ctx.arc(c.x, c.y, c.r-10, 0, Math.PI*2); ctx.fill();
+    // petit toit
+    ctx.strokeStyle = getCss('--trunk');
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(c.x-c.r+2, c.y-c.r-2); ctx.lineTo(c.x-c.r+2, c.y-c.r-16); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(c.x+c.r-2, c.y-c.r-2); ctx.lineTo(c.x+c.r-2, c.y-c.r-16); ctx.stroke();
+    ctx.fillStyle = getCss('--flag-red');
+    ctx.beginPath();
+    ctx.moveTo(c.x-c.r-2, c.y-c.r-14);
+    ctx.lineTo(c.x+c.r+2, c.y-c.r-14);
+    ctx.lineTo(c.x, c.y-c.r-28);
+    ctx.closePath(); ctx.fill();
+  }
+
+  function drawHole(){
+    const lvl = currentLevel();
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.beginPath(); ctx.ellipse(lvl.hole.x, lvl.hole.y+3, HOLE_R+3, HOLE_R*0.5, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath();
+    ctx.arc(lvl.hole.x, lvl.hole.y, HOLE_R, 0, Math.PI*2);
+    ctx.fillStyle = '#151810';
+    ctx.fill();
+    ctx.strokeStyle = getCss('--trunk');
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(lvl.hole.x + 8, lvl.hole.y);
+    ctx.lineTo(lvl.hole.x + 8, lvl.hole.y - 46);
+    ctx.stroke();
+    ctx.fillStyle = getCss('--flag-red');
+    ctx.beginPath();
+    ctx.moveTo(lvl.hole.x + 8, lvl.hole.y - 46);
+    ctx.lineTo(lvl.hole.x + 34, lvl.hole.y - 38);
+    ctx.lineTo(lvl.hole.x + 8, lvl.hole.y - 30);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = getCss('--flag-gold');
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  function drawBall(){
+    ctx.beginPath();
+    ctx.ellipse(ball.x, ball.y+R*0.7, R*0.9, R*0.35, 0, 0, Math.PI*2);
+    ctx.fillStyle = getCss('--ball-shadow');
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, R, 0, Math.PI*2);
+    ctx.fillStyle = getCss('--ball');
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  function drawAim(){
+    if (!aiming) return;
+    let dx = dragNow.x - dragStart.x;
+    let dy = dragNow.y - dragStart.y;
+    let dist = Math.hypot(dx, dy);
+    if (dist > MAX_DRAG){ dx *= MAX_DRAG/dist; dy *= MAX_DRAG/dist; }
+    const ex = ball.x - dx;
+    const ey = ball.y - dy;
+    ctx.setLineDash([6,6]);
+    ctx.strokeStyle = '#f4efe1';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(ball.x, ball.y);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    const power = Math.min(Math.hypot(dx,dy), MAX_DRAG) / MAX_DRAG;
+    ctx.fillStyle = '#f4efe1';
+    ctx.font = '11px Courier New';
+    ctx.fillText(Math.round(power*100) + '%', ball.x + 10, ball.y - 10);
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    drawBackdrop();
+    drawCourseBase();
+    drawWalls();
+    drawHole();
+    drawAim();
+    drawBall();
+    drawFrameTrees();
+  }
+
+  function loop(){ update(); draw(); requestAnimationFrame(loop); }
+  loop();
+
+  // --- entrées souris / tactile ---
+  function getPos(evt){
+    const rect = canvas.getBoundingClientRect();
+    const t = evt.touches ? evt.touches[0] : evt;
+    return {
+      x: (t.clientX - rect.left) * (W/rect.width),
+      y: (t.clientY - rect.top) * (H/rect.height)
+    };
+  }
+  function pointerDown(evt){
+    if (finished){ nextOrRestart(); return; }
+    if (moving) return;
+    const p = getPos(evt);
+    const d = Math.hypot(p.x - ball.x, p.y - ball.y);
+    if (d < R*4){ aiming = true; dragStart = {x: ball.x, y: ball.y}; dragNow = p; }
+  }
+  function pointerMove(evt){ if (aiming) dragNow = getPos(evt); }
+  function pointerUp(){
+    if (!aiming) return;
+    aiming = false;
+    let dx = dragNow.x - dragStart.x;
+    let dy = dragNow.y - dragStart.y;
+    let dist = Math.hypot(dx, dy);
+    if (dist < 6) return;
+    if (dist > MAX_DRAG){ dx *= MAX_DRAG/dist; dy *= MAX_DRAG/dist; }
+    ball.vx = -dx * POWER;
+    ball.vy = -dy * POWER;
+    moving = true;
+    strokes++;
+    strokesEl.textContent = strokes;
+  }
+
+  canvas.addEventListener('mousedown', pointerDown);
+  window.addEventListener('mousemove', pointerMove);
+  window.addEventListener('mouseup', pointerUp);
+  canvas.addEventListener('touchstart', (e)=>{ pointerDown(e); e.preventDefault(); }, {passive:false});
+  window.addEventListener('touchmove', (e)=>{ pointerMove(e); e.preventDefault(); }, {passive:false});
+  window.addEventListener('touchend', pointerUp);
+  msgEl.addEventListener('click', nextOrRestart);
+  window.addEventListener('keydown', (e)=>{ if (e.code === 'Space'){ e.preventDefault(); nextOrRestart(); } });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1452 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mini-golf du Panorama</title>
+<meta name="description" content="Inauguré en 1958 à Esneux, le mini-golf du Panorama s'est endormi. Un groupe de citoyens veut le relancer ensemble.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,700;1,900&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono&display=swap">
+<style>
+/* Version « histoire » : reprend la version alternative (papier vintage, Playfair italique + Space Grotesk)
+   et raconte d'abord l'histoire du lieu et le projet collectif. La piste coopérative est repliée en bas de page.
+   Photos : dossier "images/web/" à côté de ce fichier. */
+:root {
+  --paper: #E9E6DE;
+  --paper-2: #F6F3EC;
+  --card: #FFFFFF;
+  --ink: #141414;
+  --ink-soft: #55524B;
+  --line: #CFCAC0;
+  --red: #E3261F;
+  --orange: #EE5A24;
+  --on-orange: #FFFFFF;
+  --green: #2F5F43;
+  --green-deep: #1F4430;
+  --mint: #48D6A0;
+  --sky: #2F7FD8;
+  --sun: #F2C230;
+  --sage: #DCE3D3;
+  --blush: #F1E1DD;
+  --sepia: #EFE6D2;
+  --on-green: #F7F4EC;
+  --on-green-soft: #CFDCCF;
+
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, Menlo, monospace;
+
+  --gutter: clamp(16px, 4vw, 64px);
+  --max: 1280px;
+  --narrow: 860px;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 1.0625rem/1.6 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+p { margin: 0 0 1em; }
+figure { margin: 0; }
+:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; border-radius: 4px; }
+
+.wrap { width: 100%; max-width: calc(var(--max) + 2 * var(--gutter)); margin-inline: auto; padding-inline: var(--gutter); }
+.wrap-narrow { max-width: calc(var(--narrow) + 2 * var(--gutter)); }
+
+/* Titres */
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin: 0 0 10px;
+}
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+h2 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: clamp(2rem, 4.6vw, 3.4rem);
+  line-height: 1.05;
+  margin-bottom: 18px;
+}
+h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+.lead { font-size: 1.2rem; color: var(--ink-soft); max-width: 60ch; }
+.center { text-align: center; }
+.nowrap { white-space: nowrap; }
+.center .lead { margin-inline: auto; }
+.note { font-size: 0.9rem; color: var(--ink-soft); }
+
+/* Boutons et pastilles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 50px;
+  padding: 0 28px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  font: 700 0.95rem/1 var(--font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } .btn:hover { transform: none; } }
+.btn-orange { background: var(--orange); color: var(--on-orange); }
+.btn-ink { background: var(--ink); color: var(--paper-2); }
+.btn-line { border-color: currentColor; background: transparent; }
+.btn-sm { min-height: 40px; padding: 0 18px; font-size: 0.82rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
+.chip {
+  display: inline-block;
+  padding: 5px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.chip-ink { background: var(--ink); color: var(--paper-2); }
+.chip-red { background: var(--red); border-color: var(--red); color: #fff; }
+.chip-sun { background: var(--sun); border-color: var(--sun); }
+.chip-box { border-radius: 0; border-width: 2px; }
+
+/* Tampon du logo */
+.stamp {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 12px 5px;
+  border: 2.5px solid var(--red);
+  background: var(--paper-2);
+  color: var(--red);
+  transform: rotate(-8deg);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.stamp b { font-family: var(--font-display); font-style: italic; font-weight: 900; font-size: 1.35rem; letter-spacing: 0; text-transform: none; color: var(--ink); }
+
+/* Barre compacte qui apparaît après l'accueil */
+.bar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 20;
+  background: var(--paper);
+  border-bottom: 3px solid var(--ink);
+  transform: translateY(-110%);
+  transition: transform 0.25s ease;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.bar.show { transform: none; }
+@media (prefers-reduced-motion: reduce) { .bar { transition: none; } }
+.bar-inner { display: flex; align-items: center; gap: 16px; min-height: 60px; }
+.bar-brand { font-family: var(--font-display); font-style: italic; font-weight: 900; font-size: 1.4rem; text-decoration: none; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.bar-brand::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--red); }
+
+/* Navigation (intégrée à l'accueil, puis dans la barre) */
+.nav { display: flex; gap: 22px; margin-left: auto; }
+.nav a {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding-block: 4px;
+  border-bottom: 2px solid transparent;
+}
+.nav a:hover { border-bottom-color: currentColor; }
+.menu-btn {
+  display: none;
+  width: 44px; height: 44px;
+  padding: 0;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.menu-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+
+/* Menu plein écran (mobile) */
+.drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: var(--paper);
+  padding: calc(env(safe-area-inset-top, 0px) + 20px) var(--gutter) 32px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.drawer-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+.drawer nav { display: flex; flex-direction: column; border-top: 3px solid var(--ink); }
+.drawer nav a {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 2rem;
+  text-decoration: none;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.drawer .btn { margin-top: 28px; }
+
+/* Accueil plein écran */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  color: var(--on-green);
+  background-color: var(--green);
+  background-image:
+    linear-gradient(rgba(31, 68, 48, 0.55), rgba(20, 40, 28, 0.82)),
+    url("images/web/hero-pistes.jpg");
+  background-size: cover;
+  background-position: center 60%;
+  overflow: hidden;
+}
+.hero-top { position: relative; display: flex; align-items: center; gap: 24px; padding-top: calc(env(safe-area-inset-top, 0px) + 22px); }
+.hero-top .nav a { color: var(--on-green); }
+.hero-body {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-block: 56px 40px;
+}
+.hero-body .kicker { color: var(--sun); font-size: 0.9rem; }
+.hero h1 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: clamp(3rem, 10vw, 8.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+}
+.hero-sub {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  margin: 14px 0 18px;
+}
+.hero-text { max-width: 56ch; color: var(--on-green-soft); font-size: 1.1rem; }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 18px; }
+.hero .btn-line { color: var(--on-green); }
+
+/* Repères de l'accueil */
+.tally {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px 32px;
+  align-items: end;
+  margin: 0;
+  padding: 22px 0 calc(env(safe-area-inset-bottom, 0px) + 26px);
+  list-style: none;
+  border-top: 2px dashed rgba(247, 244, 236, 0.35);
+}
+.tally-num { display: block; font-family: var(--font-display); font-style: italic; font-weight: 900; font-size: 2rem; line-height: 1.1; color: var(--sun); }
+.tally-label { font-size: 0.85rem; color: var(--on-green-soft); }
+
+/* Sections */
+.band { padding-block: clamp(64px, 9vw, 120px); }
+.band-sage { background: var(--sage); }
+.band-blush { background: var(--blush); }
+.band-paper2 { background: var(--paper-2); }
+.band-sepia { background: var(--sepia); }
+.rule { border: 0; border-top: 3px solid var(--ink); margin: 0 0 28px; }
+
+/* Chapitres de l'histoire */
+.chapter { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(32px, 5vw, 72px); align-items: start; }
+.chapter.flip > :first-child { order: 2; }
+.chapter-no {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+.chapter-no b { font-family: var(--font-display); font-style: italic; font-weight: 900; font-size: 3.4rem; line-height: 1; color: var(--red); }
+.quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  line-height: 1.3;
+  border-left: 4px solid var(--red);
+  padding: 2px 0 2px 18px;
+  margin: 24px 0;
+}
+.quote cite { display: block; margin-top: 8px; font: 400 0.85rem/1.4 var(--font-mono); font-style: normal; color: var(--ink-soft); }
+.facts { list-style: none; margin: 24px 0 0; padding: 0; border-top: 3px solid var(--ink); }
+.facts li { display: grid; grid-template-columns: 8rem minmax(0, 1fr); gap: 4px 16px; padding: 12px 0; border-bottom: 1px solid var(--ink); }
+.facts .when { font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink-soft); padding-top: 2px; }
+
+/* Photos et légendes */
+.shot { position: relative; overflow: hidden; border-radius: 14px; background: var(--line); }
+.shot img { width: 100%; height: 100%; object-fit: cover; }
+.shot figcaption, .cap {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  padding-top: 8px;
+}
+.archive img { filter: sepia(0.25) contrast(1.02); }
+
+/* Collage 1958 */
+.collage { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: 14px; }
+.collage figure { min-width: 0; }
+.clip {
+  background: #FBF6E8;
+  padding: 10px;
+  border: 1px solid var(--line);
+  box-shadow: 5px 5px 0 var(--ink);
+  transform: rotate(-2.5deg);
+  margin: 6px 6px 18px;
+}
+.clip img { width: 100%; }
+.c-golfer { grid-row: span 2; }
+.c-golfer .shot { aspect-ratio: 480 / 857; }
+.c-alfa .shot { aspect-ratio: 1181 / 827; border: 1px solid var(--line); }
+.c-wide { grid-column: 1 / -1; }
+.c-wide .shot { aspect-ratio: 16 / 9; }
+
+/* Galerie des belles années */
+.gallery { columns: 3 260px; column-gap: 14px; margin-top: 40px; }
+.gallery figure { break-inside: avoid; margin: 0 0 14px; }
+.gallery .shot img { height: auto; }
+
+/* Bande panorama */
+.panorama {
+  position: relative;
+  min-height: clamp(380px, 70vh, 720px);
+  display: flex;
+  align-items: flex-end;
+  color: #fff;
+  background: var(--green-deep) url("images/web/vue-vallee.jpg") center 40% / cover no-repeat;
+}
+.panorama::before { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 35%, rgba(0, 0, 0, 0.6)); }
+.panorama .wrap { position: relative; padding-block: 40px; }
+.panorama p { margin: 0; }
+.panorama .big {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: clamp(2.2rem, 6vw, 4.8rem);
+  line-height: 1;
+  text-wrap: balance;
+  max-width: 16ch;
+}
+.panorama .cap { color: rgba(255, 255, 255, 0.85); padding-top: 14px; }
+
+/* Avant / maintenant */
+.then-now { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.then-now .shot { aspect-ratio: 4 / 3; }
+.tag {
+  position: absolute;
+  top: 12px; left: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper-2);
+  font: 700 0.78rem/1.3 var(--font-mono);
+}
+.tag-red { background: var(--red); }
+.wild { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+.wild .shot { aspect-ratio: 3 / 4; }
+
+/* Le projet : plan + intentions */
+.project { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(32px, 5vw, 72px); align-items: start; }
+.poster { display: grid; gap: 10px; }
+.pill-bar {
+  background: var(--ink);
+  color: var(--paper-2);
+  border-radius: 999px;
+  text-align: center;
+  padding: 12px 18px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+.pill-bar.small { display: flex; justify-content: space-between; gap: 12px; font-size: 0.68rem; letter-spacing: 0.08em; padding: 10px 20px; }
+.plan { border-radius: 22px; overflow: hidden; border: 2px solid var(--ink); background: #FFF8E6; }
+.plan svg { display: block; width: 100%; height: auto; }
+.project h2 { font-size: clamp(2.2rem, 4.8vw, 3.8rem); }
+.signature {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 1.25rem;
+  line-height: 1.35;
+  border-top: 1px solid var(--ink);
+  padding-top: 18px;
+  margin-top: 24px;
+}
+
+/* Cartes */
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 44px; text-align: left; }
+.card { background: var(--card); border-radius: 6px; padding: 28px 26px; }
+.card p { margin: 0; color: var(--ink-soft); }
+.card-mark { display: block; font-family: var(--font-display); font-style: italic; font-weight: 900; font-size: 2.4rem; line-height: 1; color: var(--red); margin-bottom: 14px; }
+
+/* Philosophie */
+.principles { list-style: none; margin: 0; padding: 0; border-top: 3px solid var(--ink); }
+.principles li { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 4px 16px; padding: 18px 0; border-bottom: 1px solid var(--ink); }
+.principles .n { font-family: var(--font-display); font-style: italic; font-weight: 900; font-size: 1.6rem; line-height: 1.1; color: var(--red); }
+.principles strong { display: block; font-size: 1.05rem; }
+.principles span { color: var(--ink-soft); }
+.inspi { margin-top: 32px; padding: 24px 26px; background: var(--card); border-radius: 6px; }
+.inspi h3 { margin-bottom: 12px; }
+.inspi ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.inspi li b { font-family: var(--font-display); font-style: italic; font-weight: 900; font-size: 1.3rem; }
+.inspi li span { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-soft); margin-left: 8px; }
+
+/* Premiers pas */
+.path { list-style: none; margin: 40px 0 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0; counter-reset: pas; }
+.path li {
+  counter-increment: pas;
+  position: relative;
+  padding: 20px 26px 20px 30px;
+  min-height: 150px;
+  background: var(--card);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 18px 50%);
+  margin-right: -10px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+.path li:first-child { clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%); padding-left: 20px; }
+.path li::before { content: counter(pas, decimal-leading-zero); display: block; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 400; color: var(--ink-soft); margin-bottom: 8px; }
+.path li:nth-child(1) { background: var(--green); color: var(--on-green); }
+.path li:nth-child(2) { background: #4F5B53; color: var(--on-green); }
+.path li:nth-child(3) { background: #C9D2C8; }
+.path li:nth-child(4) { background: var(--red); color: #fff; }
+.path li:nth-child(5) { background: var(--orange); color: #fff; }
+.path li:nth-child(6) { background: #F3B9A6; }
+.path li:nth-child(7) { background: var(--sun); }
+.path li:nth-child(1)::before, .path li:nth-child(2)::before, .path li:nth-child(4)::before, .path li:nth-child(5)::before { color: inherit; opacity: 0.8; }
+.next { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 40px; }
+.next article { background: var(--card); border-radius: 6px; padding: 22px; }
+.next p { margin: 0; color: var(--ink-soft); font-size: 0.95rem; }
+.coach {
+  margin-top: 16px;
+  padding: 14px 22px;
+  background: var(--ink);
+  color: var(--paper-2);
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+/* Ce que le Panorama peut apporter */
+.bring { background: var(--green); color: var(--on-green); }
+.bring .kicker { color: var(--sun); }
+.bring-list { list-style: none; margin: 28px 0 0; padding: 0; border-top: 2px dashed rgba(247, 244, 236, 0.35); }
+.bring-list li {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: clamp(1.6rem, 4vw, 3rem);
+  line-height: 1.1;
+  padding: 18px 0;
+  border-bottom: 2px dashed rgba(247, 244, 236, 0.35);
+}
+.bring-list li span { color: var(--sun); }
+
+/* Piste coopérative (repliable) */
+.coop-intro { display: grid; grid-template-columns: minmax(0, 1.2fr) auto; gap: 24px 48px; align-items: end; }
+.coop-intro p { margin: 0; }
+.coop-toggle { white-space: nowrap; }
+.coop-toggle svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s ease; }
+.coop-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .coop-toggle svg { transition: none; } }
+.coop-panel { margin-top: 48px; padding-top: 40px; border-top: 3px solid var(--ink); }
+.coop-panel .cards { margin-top: 28px; }
+.coop-block { margin-top: clamp(48px, 6vw, 72px); }
+.coop-block > h2 { font-size: clamp(1.7rem, 3.4vw, 2.6rem); }
+
+/* Étapes */
+.steps { list-style: none; margin: 28px 0 0; padding: 0; display: grid; gap: 16px; text-align: left; }
+.step {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 4px 20px;
+  align-items: start;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 22px 24px;
+}
+.step-no {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 1.3rem;
+}
+.step p { margin: 0; color: var(--ink-soft); }
+.step .chip { align-self: center; }
+
+/* Calendrier et avantages */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 80px); align-items: start; }
+.timeline { list-style: none; margin: 0; padding: 0; border-top: 3px solid var(--ink); }
+.timeline li { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr) auto; gap: 4px 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--ink); }
+.when { font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink-soft); }
+.what { font-weight: 600; }
+.perks { list-style: none; margin: 0; padding: 0; border-top: 3px solid var(--ink); }
+.perks li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--ink); font-weight: 500; }
+.perks svg { width: 22px; height: 22px; margin-top: 2px; }
+
+/* Rejoindre */
+.join { background: var(--green); color: var(--on-green); }
+.join-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+.join .kicker { color: var(--sun); }
+.join h2 { font-size: clamp(2.4rem, 6vw, 4.6rem); }
+.join p { color: var(--on-green-soft); max-width: 56ch; }
+.contact { display: grid; gap: 22px; margin-top: 32px; padding-top: 26px; border-top: 2px dashed rgba(247, 244, 236, 0.35); }
+.contact .label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--sun); margin: 0 0 4px; }
+.email { font-family: var(--font-mono); word-break: break-all; user-select: all; color: var(--on-green); }
+.copy-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.contact p { color: var(--on-green); margin: 0; }
+.join .btn-line { color: var(--on-green); }
+
+/* Formulaire */
+.form-card { background: var(--paper-2); color: var(--ink); border-radius: 18px; padding: clamp(22px, 3vw, 34px); box-shadow: 6px 6px 0 var(--ink); }
+.form-card .pill-bar { margin: 0 0 22px; }
+.form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px 16px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field-full { grid-column: 1 / -1; }
+.field label, .field legend { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 0; }
+.field .opt { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--ink-soft); }
+.form input[type="text"], .form input[type="email"], .form textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--ink);
+  font: 400 1rem/1.4 var(--font-body);
+}
+.form textarea { min-height: 96px; resize: vertical; }
+.form input:focus-visible, .form textarea:focus-visible { outline: 3px solid var(--orange); outline-offset: 1px; }
+.form [aria-invalid="true"] { border-color: var(--red); background: #FFF4F2; }
+.err { margin: 0; font-size: 0.82rem; font-weight: 600; color: var(--red); }
+fieldset.field { border: 0; margin: 0; padding: 0; }
+.check { display: flex; align-items: flex-start; gap: 10px; font-size: 0.95rem; cursor: pointer; }
+.check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--red); flex: none; }
+.helps { display: flex; flex-wrap: wrap; gap: 8px; }
+.helps label { position: relative; cursor: pointer; }
+.helps input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.helps span {
+  display: inline-block;
+  padding: 7px 13px;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--card);
+}
+.helps input:checked + span { background: var(--ink); color: var(--paper-2); }
+.helps input:checked + span::before { content: "× "; }
+.helps input:focus-visible + span { outline: 3px solid var(--orange); outline-offset: 2px; }
+.join .form-card p { color: var(--ink-soft); max-width: none; }
+.join .form-card .err, .join .form-card .form-status.is-error { color: var(--red); }
+.join .form-card .form-status { color: var(--ink); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form-foot { grid-column: 1 / -1; display: grid; gap: 12px; }
+.form-foot .btn { width: 100%; }
+.form-foot .note { margin: 0; font-size: 0.82rem; }
+.form-status { margin: 0; font-weight: 600; }
+.form-status.is-error { color: var(--red); }
+.thanks { text-align: center; padding: 18px 0 6px; }
+.thanks:focus { outline: none; }
+.thanks .card-mark { font-size: 3rem; }
+.thanks h3 { font-family: var(--font-display); font-style: italic; font-weight: 900; font-size: 2rem; letter-spacing: 0; text-transform: none; }
+.thanks p { color: var(--ink-soft); margin: 10px auto 0; max-width: 40ch; }
+
+/* FAQ */
+.faq { border-top: 3px solid var(--ink); margin-top: 32px; text-align: left; }
+.faq details { border-bottom: 1px solid var(--ink); }
+.faq summary {
+  list-style: none;
+  cursor: pointer;
+  position: relative;
+  padding: 20px 48px 20px 0;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: "+";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--red);
+}
+.faq details[open] summary::after { content: "\2212"; }
+.faq details p { margin: 0 0 22px; color: var(--ink-soft); }
+
+/* Pied de page */
+.foot { padding-block: 48px calc(env(safe-area-inset-bottom, 0px) + 48px); border-top: 3px solid var(--ink); }
+.foot-grid { display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr); gap: 28px 56px; font-size: 0.88rem; color: var(--ink-soft); }
+.foot .stamp { margin-bottom: 18px; }
+.foot p { margin: 0 0 0.8em; }
+
+/* Plan du parcours (d'après le relevé de l'ancien parcours) */
+.p-lane-o { fill: none; stroke: var(--ink); stroke-width: 25; stroke-linecap: butt; stroke-linejoin: round; }
+.p-lane { fill: none; stroke: var(--mint); stroke-width: 18; stroke-linecap: butt; stroke-linejoin: round; }
+.p-lane.alt { stroke: var(--sky); }
+.p-cup-o { fill: var(--ink); }
+.p-cup { fill: var(--mint); }
+.p-cup.alt { fill: var(--sky); }
+.p-hole { fill: var(--ink); }
+.p-tree { fill: var(--sun); stroke: var(--ink); stroke-width: 1.5; }
+.p-roof { fill: var(--red); stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
+.p-wall { fill: #F4E3B5; stroke: var(--ink); stroke-width: 2; }
+.p-door { fill: var(--ink); }
+.p-sky { fill: #CFE3F2; }
+.p-hills { fill: #9DBFA4; }
+.p-cliff { fill: #B9AE98; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
+.p-cliff-hatch { stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; opacity: 0.45; }
+.p-no circle { fill: #fff; stroke: var(--red); stroke-width: 2; }
+.p-no text { font: 700 13px var(--font-body); fill: var(--red); text-anchor: middle; dominant-baseline: central; }
+.p-label { font: 700 12px var(--font-body); letter-spacing: 0.12em; fill: var(--ink); text-transform: uppercase; }
+.p-title { font: italic 900 30px var(--font-display); fill: var(--red); }
+
+/* Tablettes et mobiles */
+@media (max-width: 1100px) {
+  .path { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .path li, .path li:first-child {
+    clip-path: none;
+    margin-right: 0;
+    min-height: 0;
+    padding: 14px 18px;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+    align-items: baseline;
+  }
+  .path li::before { margin: 0; }
+  .next { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 980px) {
+  .nav { display: none; }
+  .menu-btn { display: inline-flex; }
+  .hero-top .btn, .bar .btn { margin-left: auto; }
+  .project, .join-grid, .split, .chapter, .coop-intro { grid-template-columns: minmax(0, 1fr); }
+  .chapter.flip > :first-child { order: 0; }
+  .cards { grid-template-columns: minmax(0, 1fr); max-width: 560px; margin-inline: auto; }
+  .tally { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .foot-grid { grid-template-columns: minmax(0, 1fr); }
+  .coop-toggle { justify-self: start; }
+}
+@media (max-width: 640px) {
+  body { font-size: 1rem; }
+  .hero-top { gap: 10px; }
+  .hero-top .btn { display: none; }
+  .hero-top .menu-btn { margin-left: auto; }
+  .stamp { font-size: 0.62rem; }
+  .stamp b { font-size: 1.15rem; }
+  .actions .btn { flex: 1 1 100%; }
+  .tally-num { font-size: 1.6rem; }
+  .form { grid-template-columns: minmax(0, 1fr); }
+  .facts li { grid-template-columns: minmax(0, 1fr); }
+  .gallery { columns: 2; column-gap: 10px; }
+  .gallery figure { margin-bottom: 10px; }
+  .wild { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wild figure:first-child { grid-column: 1 / -1; }
+  .wild figure:first-child .shot { aspect-ratio: 4 / 3; }
+  .next { grid-template-columns: minmax(0, 1fr); }
+  .coach { border-radius: 14px; }
+  .step { grid-template-columns: 44px minmax(0, 1fr); padding: 18px; }
+  .step-no { width: 40px; height: 40px; font-size: 1.1rem; }
+  .step .chip { grid-column: 2; justify-self: start; }
+  .timeline li { grid-template-columns: minmax(0, 1fr) auto; }
+  .timeline .when { grid-column: 1 / -1; }
+  .pill-bar.small { flex-direction: column; text-align: center; gap: 2px; }
+  .coop-toggle { width: 100%; white-space: normal; }
+}
+</style>
+</head>
+<body>
+
+<!-- Barre compacte -->
+<header class="bar" id="bar" aria-label="Navigation">
+  <div class="wrap bar-inner">
+    <a class="bar-brand" href="#accueil">Le Panorama</a>
+    <nav class="nav" aria-label="Sections du site">
+      <a href="#histoire">L'histoire</a>
+      <a href="#projet">Le projet</a>
+      <a href="#chemin">Où on en est</a>
+      <a href="#cooperative">Coopérative</a>
+      <a href="#faq">Questions</a>
+    </nav>
+    <a class="btn btn-orange btn-sm" href="#rejoindre">Je m'implique</a>
+    <button class="menu-btn" type="button" aria-label="Ouvrir le menu" data-open-menu>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- Menu mobile -->
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Menu" hidden>
+  <div class="drawer-top">
+    <span class="stamp"><span>Mini-golf · Esneux</span><b>Le Panorama</b></span>
+    <button class="menu-btn" type="button" aria-label="Fermer le menu" id="close-menu" style="display:inline-flex">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/></svg>
+    </button>
+  </div>
+  <nav aria-label="Sections du site">
+    <a href="#histoire">L'histoire</a>
+    <a href="#aujourdhui">Aujourd'hui</a>
+    <a href="#projet">Le projet</a>
+    <a href="#chemin">Où on en est</a>
+    <a href="#cooperative">La piste coopérative</a>
+    <a href="#faq">Questions</a>
+  </nav>
+  <a class="btn btn-orange" href="#rejoindre">Je m'implique</a>
+</div>
+
+<main>
+  <!-- Accueil -->
+  <section class="hero" id="accueil" aria-labelledby="hero-title">
+    <div class="wrap hero-top">
+      <a class="stamp" href="#accueil"><span>Mini-golf · Esneux</span><b>Le Panorama</b></a>
+      <nav class="nav" aria-label="Sections du site">
+        <a href="#histoire">L'histoire</a>
+        <a href="#projet">Le projet</a>
+        <a href="#chemin">Où on en est</a>
+        <a href="#cooperative">Coopérative</a>
+        <a href="#faq">Questions</a>
+      </nav>
+      <a class="btn btn-orange btn-sm" href="#rejoindre">Je m'implique</a>
+      <button class="menu-btn" type="button" aria-label="Ouvrir le menu" data-open-menu style="color: var(--on-green)">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg>
+      </button>
+    </div>
+
+    <div class="wrap hero-body">
+      <p class="kicker">esneux · depuis 1958 · projet collectif de relance</p>
+      <h1 id="hero-title">Le Panorama <span class="nowrap">se réveille.</span></h1>
+      <p class="hero-sub">Un mini-golf, une histoire, un projet à écrire ensemble.</p>
+      <p class="hero-text">Inauguré en 1958 sur les hauteurs d'Esneux, le mini-golf du Panorama a vu passer des générations de joueurs. Il s'est endormi sous les arbres. Un groupe de citoyens veut lui rendre vie, comme lieu de loisirs, de rencontre et de vue sur la vallée.</p>
+      <div class="actions">
+        <a class="btn btn-orange" href="#histoire">Découvrir son histoire</a>
+        <a class="btn btn-line" href="#rejoindre">Je m'implique</a>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <ul class="tally" aria-label="Le Panorama en quelques repères">
+        <li><span class="tally-num">1958</span><span class="tally-label">inauguration du golf miniature</span></li>
+        <li><span class="tally-num">18</span><span class="tally-label">pistes sous les arbres</span></li>
+        <li><span class="tally-num">1 vue</span><span class="tally-label">sur la vallée, au bord de la falaise</span></li>
+        <li><span class="tally-num">2026</span><span class="tally-label">un groupe de travail se lance</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Chapitre 1 : 1958 -->
+  <section class="band band-sepia" id="histoire" aria-labelledby="ch1-title">
+    <div class="wrap chapter">
+      <div>
+        <p class="chapter-no"><b>1</b> un saut dans le passé</p>
+        <h2 id="ch1-title">« Le plus beau et le plus grand golf miniature de la province »</h2>
+        <p>C'est ainsi que la presse locale annonce le chantier : <em>« Très bientôt à Esneux… Venez voir l'avancement des travaux, dimanche prochain, à l'Alfa ! »</em></p>
+        <p>Le golf miniature est inauguré en 1958 par Théodule et André Gauthier, l'un propriétaire, l'autre exploitant. Il ne vit pas seul : il fait partie de l'Alfa, un ensemble qui réunit un cinéma-brasserie, une grande terrasse, un parking pour autos et autocars, le Golf du Panorama et le terrain du basket B.C.S.M.</p>
+        <p>On y vient en famille le dimanche, on y fait une partie avant la séance de cinéma, on s'y attarde en terrasse face à la vallée.</p>
+        <ul class="facts">
+          <li><span class="when">1958</span><span>Inauguration par Théodule et André Gauthier</span></li>
+          <li><span class="when">L'Alfa</span><span>Cinéma, brasserie, grande terrasse, Golf du Panorama, basket B.C.S.M.</span></li>
+          <li><span class="when">Le parcours</span><span>18 pistes en béton au pied des arbres, un petit pont, un puits, des rocailles</span></li>
+        </ul>
+      </div>
+      <div class="collage">
+        <figure>
+          <div class="clip"><img src="images/web/archive-annonce.jpg" width="449" height="419" alt="Annonce de presse : « Très bientôt à Esneux… le plus beau et le plus grand de la province ! GOLF miniature. Venez voir l'avancement des travaux, dimanche prochain, à l'Alfa ! »" loading="lazy"></div>
+        </figure>
+        <figure class="c-golfer archive">
+          <div class="shot"><img src="images/web/archive-golfeur.jpg" width="480" height="857" alt="Photo noir et blanc d'un homme en costume qui joue sur une piste du mini-golf" loading="lazy"></div>
+          <figcaption>Une partie sur le parcours, à ses débuts</figcaption>
+        </figure>
+        <figure class="c-alfa archive">
+          <div class="shot"><img src="images/web/archive-alfa.jpg" width="1181" height="827" alt="Carte postale de l'Alfa à Esneux : cinéma, brasserie, grande terrasse, Golf du Panorama, basket B.C.S.M., avec vues du bâtiment et du parcours" loading="lazy"></div>
+          <figcaption>Carte postale de l'Alfa, cinéma-brasserie</figcaption>
+        </figure>
+        <figure class="c-wide archive">
+          <div class="shot"><img src="images/web/archive-parcours.jpg" width="1280" height="819" alt="Photo noir et blanc du parcours de mini-golf sous les arbres, avec ses obstacles " loading="lazy"></div>
+          <figcaption>Le parcours à ses débuts</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chapitre 2 : les belles années -->
+  <section class="band band-paper2" aria-labelledby="ch2-title">
+    <div class="wrap">
+      <div class="wrap-narrow" style="padding: 0; margin: 0;">
+        <p class="chapter-no"><b>2</b> les belles années</p>
+        <h2 id="ch2-title">Des générations de parties sous les arbres</h2>
+        <p class="lead">Pendant plus de soixante ans, le Panorama accueille des familles, des groupes scolaires, des randonneurs de passage et quelques premiers rendez-vous.</p>
+        <p>Les pistes vert d'eau serpentent entre les chênes. On franchit le petit pont blanc, on vise le trou au pied du vieux puits, on monte les marches de pierre. Au printemps, les hortensias éclatent au bord des allées. Et au bout du parcours, il y a la vue.</p>
+      </div>
+      <div class="gallery">
+        <figure><div class="shot"><img src="images/web/pont-hortensias.jpg" width="1280" height="960" alt="Le petit pont blanc et des massifs d'hortensias, avec la vallée en arrière-plan" loading="lazy"></div><figcaption>Le petit pont et les hortensias</figcaption></figure>
+        <figure><div class="shot"><img src="images/web/rocaille.jpg" width="960" height="1280" alt="Rocaille de pierres et de plantes au bord d'une piste, la vallée boisée au loin" loading="lazy"></div><figcaption>Les rocailles, face à la vallée</figcaption></figure>
+        <figure><div class="shot"><img src="images/web/obstacles.jpg" width="1280" height="960" alt="Piste droite avec trois obstacles blancs en forme d'arche, bordée d'hortensias blancs" loading="lazy"></div><figcaption>Les arches, un classique</figcaption></figure>
+        <figure><div class="shot"><img src="images/web/puits.jpg" width="1280" height="960" alt="Pistes rondes et une piste en pente avec marches de pierre, près du puits au toit de bois" loading="lazy"></div><figcaption>Le puits et la piste en escalier</figcaption></figure>
+        <figure><div class="shot"><img src="images/web/pistes-fleurs.jpg" width="1280" height="960" alt="Pistes courbes entourées de fleurs violettes et de rochers" loading="lazy"></div><figcaption>Au printemps</figcaption></figure>
+        <figure><div class="shot"><img src="images/web/pistes-chalet.jpg" width="640" height="478" alt="Pistes en forme de poire sous les arbres, avec le petit chalet au fond" loading="lazy"></div><figcaption>Le chalet au fond du parcours</figcaption></figure>
+        <figure><div class="shot"><img src="images/web/piste-escalier.jpg" width="1280" height="960" alt="Piste en pente encadrée de murets de pierre, à côté de deux pistes rondes" loading="lazy"></div><figcaption>Murets de pierre</figcaption></figure>
+        <figure><div class="shot"><img src="images/web/pistes-ombre.jpg" width="1280" height="960" alt="Pistes à l'ombre des grands arbres avec un petit pont blanc" loading="lazy"></div><figcaption>À l'ombre des chênes</figcaption></figure>
+        <figure><div class="shot"><img src="images/web/vasque.jpg" width="1280" height="960" alt="Grande vasque fleurie au milieu du parcours, la vallée derrière la clôture" loading="lazy"></div><figcaption>La vasque fleurie</figcaption></figure>
+      </div>
+      <p class="note">Photos du parcours prises en 2017.</p>
+    </div>
+  </section>
+
+  <!-- La vue -->
+  <section class="panorama" aria-label="La vue depuis le parcours">
+    <div class="wrap">
+      <p class="big">Le Panorama, c'est d'abord une vue.</p>
+      <p class="cap">La vallée, depuis le bord du parcours</p>
+    </div>
+  </section>
+
+  <!-- Chapitre 3 : aujourd'hui -->
+  <section class="band" id="aujourdhui" aria-labelledby="ch3-title">
+    <div class="wrap chapter flip">
+      <div>
+        <p class="chapter-no"><b>3</b> aujourd'hui</p>
+        <h2 id="ch3-title">La nature a repris ses droits</h2>
+        <p>Faute de repreneur, le mini-golf a fermé en 2019. Depuis, les feuilles recouvrent les pistes, la mousse a gagné le béton et les ronces poussent entre les obstacles. Le basket voisin a renoncé à reprendre l'exploitation.</p>
+        <p>Mais en s'approchant, tout est encore là : le tracé des pistes, le puits et son toit de bois, le chalet, les grands arbres et, surtout, la vue.</p>
+        <blockquote class="quote">Recréer un espace vivant, familial et tourné vers l'avenir.<cite>L'ambition du groupe de travail, juin 2026</cite></blockquote>
+      </div>
+      <div>
+        <div class="then-now">
+          <figure><div class="shot"><img src="images/web/puits.jpg" width="1280" height="960" alt="Le puits et les pistes entretenues en 2017" loading="lazy"><span class="tag">2017</span></div></figure>
+          <figure><div class="shot"><img src="images/web/2026-puits.jpg" width="1280" height="960" alt="Le même puits en 2026, entouré d'herbes hautes et de végétation" loading="lazy"><span class="tag tag-red">2026</span></div></figure>
+        </div>
+        <p class="cap">Le puits, avant et maintenant</p>
+        <div class="wild">
+          <figure><div class="shot"><img src="images/web/2026-chalet.jpg" width="1280" height="960" alt="Le parking pavé et le petit chalet de briques au pied des grands arbres, en 2026" loading="lazy"></div><figcaption>L'entrée et le chalet</figcaption></figure>
+          <figure><div class="shot"><img src="images/web/2026-piste-envahie.jpg" width="964" height="1286" alt="Une piste envahie par les herbes et les ronces" loading="lazy"></div><figcaption>Une piste sous les herbes</figcaption></figure>
+          <figure><div class="shot"><img src="images/web/2026-trou.jpg" width="964" height="1286" alt="Une piste ronde couverte de mousse et de terre" loading="lazy"></div><figcaption>Le tracé est toujours là</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Le projet -->
+  <section class="band band-paper2" id="projet" aria-labelledby="projet-title">
+    <div class="wrap project">
+      <div class="poster">
+        <div class="pill-bar">Le Panorama de demain</div>
+        <div class="plan">
+          <svg viewBox="0 0 1110 770" role="img" aria-label="Plan du parcours : les 18 pistes numérotées au pied de la falaise qui donne sur le panorama, la Kfet en bas à droite au départ de la piste 1">
+            <g>
+              <rect class="p-sky" x="0" y="0" width="1110" height="96"/>
+              <path class="p-hills" d="M0 70 C80 48 150 58 230 44 S 380 30 470 50 S 640 62 720 40 S 900 26 980 46 S 1080 56 1110 48 V96 H0 Z"/>
+              <path class="p-cliff" d="M0 78 H1110 V112 L1080 118 L1050 108 L1015 120 L975 110 L940 122 L900 112 L860 120 L820 108 L780 118 L740 110 L700 121 L660 109 L620 119 L580 111 L540 122 L500 110 L460 119 L420 108 L380 120 L340 111 L300 121 L260 109 L220 118 L180 110 L140 121 L100 111 L60 119 L30 109 L0 116 Z"/>
+              <path class="p-cliff-hatch" d="M40 86 l-12 22 M110 86 l-12 22 M180 86 l-12 22 M250 86 l-12 22 M320 86 l-12 22 M390 86 l-12 22 M460 86 l-12 22 M530 86 l-12 22 M600 86 l-12 22 M670 86 l-12 22 M740 86 l-12 22 M810 86 l-12 22 M880 86 l-12 22 M950 86 l-12 22 M1020 86 l-12 22 M1090 86 l-12 22"/>
+              <text class="p-title" x="34" y="42">Le Panorama</text>
+              <text class="p-label" x="1078" y="34" text-anchor="end">Falaise · vue sur le panorama</text>
+            </g>
+            <g transform="translate(0 130)">
+            <g class="p-trees"><circle class="p-tree" cx="37.5" cy="579.0" r="11"/><circle class="p-tree" cx="32.5" cy="320.0" r="11"/><circle class="p-tree" cx="169.0" cy="542.5" r="11"/><circle class="p-tree" cx="289.0" cy="535.0" r="11"/><circle class="p-tree" cx="230.0" cy="117.5" r="11"/><circle class="p-tree" cx="570.0" cy="532.5" r="11"/><circle class="p-tree" cx="576.0" cy="345.0" r="11"/><circle class="p-tree" cx="671.0" cy="535.0" r="11"/><circle class="p-tree" cx="781.0" cy="536.0" r="11"/><circle class="p-tree" cx="786.0" cy="351.0" r="11"/><circle class="p-tree" cx="895.0" cy="577.5" r="11"/><circle class="p-tree" cx="897.5" cy="531.5" r="11"/><circle class="p-tree" cx="896.0" cy="351.0" r="11"/><circle class="p-tree" cx="692.5" cy="187.5" r="11"/><circle class="p-tree" cx="990.0" cy="271.0" r="11"/><circle class="p-tree" cx="996.0" cy="187.5" r="11"/></g>
+            <g><path class="p-roof" d="M1000 520 L1040 488 L1080 520 Z"/><rect class="p-wall" x="1007" y="519" width="66" height="66"/><rect class="p-door" x="1032" y="557" width="16" height="28"/><text class="p-label" x="1040" y="608" text-anchor="middle">Kfet</text></g>
+            <g><path class="p-lane-o" d="M985.0,510.0 L865.0,470.0 L690.0,495.0"/><circle class="p-cup-o" cx="690.0" cy="495.0" r="30.5"/><path class="p-lane-o" d="M760.0,365.0 L607.5,485.0"/><circle class="p-cup-o" cx="607.5" cy="485.0" r="30.5"/><path class="p-lane-o" d="M585.0,380.0 L507.5,377.5"/><circle class="p-cup-o" cx="507.5" cy="377.5" r="30.5"/><path class="p-lane-o" d="M500.0,495.0 L430.0,415.0"/><circle class="p-cup-o" cx="430.0" cy="415.0" r="35.5"/><path class="p-lane-o" d="M390.0,525.0 L227.5,452.5"/><circle class="p-cup-o" cx="227.5" cy="452.5" r="45.5"/><path class="p-lane-o" d="M92.5,507.5 C40.0,450.0 45.0,350.0 107.5,270.0"/><circle class="p-cup-o" cx="107.5" cy="270.0" r="40.5"/><path class="p-lane-o" d="M165.0,310.0 L275.0,235.0"/><circle class="p-cup-o" cx="275.0" cy="235.0" r="43.0"/><path class="p-lane-o" d="M210.0,77.5 L310.0,75.0 L315.0,160.0"/><circle class="p-cup-o" cx="310.0" cy="75.0" r="20.5"/><circle class="p-cup-o" cx="315.0" cy="160.0" r="33.0"/><path class="p-lane-o" d="M330.0,415.0 L410.0,290.0"/><circle class="p-cup-o" cx="410.0" cy="290.0" r="38.0"/><path class="p-lane-o" d="M462.5,267.5 L450.0,235.0 L462.5,207.5 L445.0,180.0 L457.5,155.0 L457.5,102.5"/><circle class="p-cup-o" cx="457.5" cy="102.5" r="33.0"/><path class="p-lane-o" d="M537.5,205.0 L600.0,70.0"/><circle class="p-cup-o" cx="600.0" cy="70.0" r="30.5"/><path class="p-lane-o" d="M570.0,257.5 L620.0,190.0"/><circle class="p-cup-o" cx="620.0" cy="190.0" r="25.5"/><path class="p-lane-o" d="M630.0,257.5 L675.0,255.0 L742.5,250.0"/><circle class="p-cup-o" cx="675.0" cy="255.0" r="28.0"/><circle class="p-cup-o" cx="742.5" cy="250.0" r="30.5"/><path class="p-lane-o" d="M700.0,75.0 L810.0,77.5"/><circle class="p-cup-o" cx="810.0" cy="77.5" r="25.5"/><path class="p-lane-o" d="M727.5,187.5 L867.5,182.5"/><circle class="p-cup-o" cx="867.5" cy="182.5" r="43.0"/><path class="p-lane-o" d="M835.0,290.0 L915.0,281.0"/><circle class="p-cup-o" cx="915.0" cy="281.0" r="28.0"/><path class="p-lane-o" d="M952.5,185.0 C957.5,150.0 990.0,127.5 1037.5,140.0"/><circle class="p-cup-o" cx="1037.5" cy="140.0" r="24.0"/><path class="p-lane-o" d="M1037.5,295.0 L1020.0,460.0"/><circle class="p-cup-o" cx="1020.0" cy="460.0" r="30.5"/></g>
+            <g><path class="p-lane" d="M985.0,510.0 L865.0,470.0 L690.0,495.0"/><circle class="p-cup" cx="690.0" cy="495.0" r="27.5"/><path class="p-lane alt" d="M760.0,365.0 L607.5,485.0"/><circle class="p-cup alt" cx="607.5" cy="485.0" r="27.5"/><path class="p-lane" d="M585.0,380.0 L507.5,377.5"/><circle class="p-cup" cx="507.5" cy="377.5" r="27.5"/><path class="p-lane" d="M500.0,495.0 L430.0,415.0"/><circle class="p-cup" cx="430.0" cy="415.0" r="32.5"/><path class="p-lane alt" d="M390.0,525.0 L227.5,452.5"/><circle class="p-cup alt" cx="227.5" cy="452.5" r="42.5"/><path class="p-lane" d="M92.5,507.5 C40.0,450.0 45.0,350.0 107.5,270.0"/><circle class="p-cup" cx="107.5" cy="270.0" r="37.5"/><path class="p-lane" d="M165.0,310.0 L275.0,235.0"/><circle class="p-cup" cx="275.0" cy="235.0" r="40.0"/><path class="p-lane alt" d="M210.0,77.5 L310.0,75.0 L315.0,160.0"/><circle class="p-cup alt" cx="310.0" cy="75.0" r="17.5"/><circle class="p-cup alt" cx="315.0" cy="160.0" r="30.0"/><path class="p-lane" d="M330.0,415.0 L410.0,290.0"/><circle class="p-cup" cx="410.0" cy="290.0" r="35.0"/><path class="p-lane" d="M462.5,267.5 L450.0,235.0 L462.5,207.5 L445.0,180.0 L457.5,155.0 L457.5,102.5"/><circle class="p-cup" cx="457.5" cy="102.5" r="30.0"/><path class="p-lane alt" d="M537.5,205.0 L600.0,70.0"/><circle class="p-cup alt" cx="600.0" cy="70.0" r="27.5"/><path class="p-lane" d="M570.0,257.5 L620.0,190.0"/><circle class="p-cup" cx="620.0" cy="190.0" r="22.5"/><path class="p-lane" d="M630.0,257.5 L675.0,255.0 L742.5,250.0"/><circle class="p-cup" cx="675.0" cy="255.0" r="25.0"/><circle class="p-cup" cx="742.5" cy="250.0" r="27.5"/><path class="p-lane alt" d="M700.0,75.0 L810.0,77.5"/><circle class="p-cup alt" cx="810.0" cy="77.5" r="22.5"/><path class="p-lane" d="M727.5,187.5 L867.5,182.5"/><circle class="p-cup" cx="867.5" cy="182.5" r="40.0"/><path class="p-lane" d="M835.0,290.0 L915.0,281.0"/><circle class="p-cup" cx="915.0" cy="281.0" r="25.0"/><path class="p-lane alt" d="M952.5,185.0 C957.5,150.0 990.0,127.5 1037.5,140.0"/><circle class="p-cup alt" cx="1037.5" cy="140.0" r="21.0"/><path class="p-lane" d="M1037.5,295.0 L1020.0,460.0"/><circle class="p-cup" cx="1020.0" cy="460.0" r="27.5"/></g>
+            <g><circle class="p-hole" cx="690.0" cy="495.0" r="4"/><circle class="p-hole" cx="607.5" cy="485.0" r="4"/><circle class="p-hole" cx="507.5" cy="377.5" r="4"/><circle class="p-hole" cx="430.0" cy="415.0" r="4"/><circle class="p-hole" cx="227.5" cy="452.5" r="4"/><circle class="p-hole" cx="107.5" cy="270.0" r="4"/><circle class="p-hole" cx="275.0" cy="235.0" r="4"/><circle class="p-hole" cx="315.0" cy="160.0" r="4"/><circle class="p-hole" cx="410.0" cy="290.0" r="4"/><circle class="p-hole" cx="457.5" cy="102.5" r="4"/><circle class="p-hole" cx="600.0" cy="70.0" r="4"/><circle class="p-hole" cx="620.0" cy="190.0" r="4"/><circle class="p-hole" cx="742.5" cy="250.0" r="4"/><circle class="p-hole" cx="810.0" cy="77.5" r="4"/><circle class="p-hole" cx="867.5" cy="182.5" r="4"/><circle class="p-hole" cx="915.0" cy="281.0" r="4"/><circle class="p-hole" cx="1037.5" cy="140.0" r="4"/><circle class="p-hole" cx="1020.0" cy="460.0" r="4"/></g>
+            <g class="p-no"><g transform="translate(985.0 510.0)"><circle r="12"/><text>1</text></g><g transform="translate(760.0 365.0)"><circle r="12"/><text>2</text></g><g transform="translate(585.0 380.0)"><circle r="12"/><text>3</text></g><g transform="translate(500.0 495.0)"><circle r="12"/><text>4</text></g><g transform="translate(390.0 525.0)"><circle r="12"/><text>5</text></g><g transform="translate(92.5 507.5)"><circle r="12"/><text>6</text></g><g transform="translate(165.0 310.0)"><circle r="12"/><text>7</text></g><g transform="translate(210.0 77.5)"><circle r="12"/><text>8</text></g><g transform="translate(330.0 415.0)"><circle r="12"/><text>9</text></g><g transform="translate(462.5 267.5)"><circle r="12"/><text>10</text></g><g transform="translate(537.5 205.0)"><circle r="12"/><text>11</text></g><g transform="translate(570.0 257.5)"><circle r="12"/><text>12</text></g><g transform="translate(630.0 257.5)"><circle r="12"/><text>13</text></g><g transform="translate(700.0 75.0)"><circle r="12"/><text>14</text></g><g transform="translate(727.5 187.5)"><circle r="12"/><text>15</text></g><g transform="translate(835.0 290.0)"><circle r="12"/><text>16</text></g><g transform="translate(952.5 185.0)"><circle r="12"/><text>17</text></g><g transform="translate(1037.5 295.0)"><circle r="12"/><text>18</text></g></g>
+            </g>
+          </svg>
+        </div>
+        <div class="pill-bar small"><span>Esneux</span><span>Inauguré en 1958</span><span>Fermé depuis 2019</span></div>
+      </div>
+      <div>
+        <p class="kicker">le projet en 2026</p>
+        <h2 id="projet-title">Un espace vivant, familial et tourné vers l'avenir</h2>
+        <p>Nous ne voulons pas seulement repeindre les pistes. Nous voulons refaire du Panorama un lieu où l'on se retrouve : un espace de loisirs attractif pour la commune et un créateur de lien social pour ses habitants.</p>
+        <p>Pour durer, l'activité doit aussi tenir debout économiquement : une ouverture à l'année, un espace de restauration, et pourquoi pas une activité à l'intérieur pour les jours de pluie.</p>
+        <ul class="chips">
+          <li class="chip chip-box">× 18 pistes rénovées</li>
+          <li class="chip chip-box">× Kfet & terrasse</li>
+          <li class="chip chip-box">× Ouvert à l'année</li>
+          <li class="chip chip-box">× Artistes</li>
+          <li class="chip chip-box">× Intergénérationnel</li>
+        </ul>
+        <p class="signature">Touristes, familles, randonneurs, aînés, personnes isolées : un lieu où toutes les générations jouent sur le même parcours.</p>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="cards">
+        <article class="card">
+          <span class="card-mark" aria-hidden="true">⛳</span>
+          <h3>Un lieu de vie pour Esneux</h3>
+          <p>Un espace de loisirs attractif pour la commune, où les habitants se croisent, se retrouvent et créent du lien.</p>
+        </article>
+        <article class="card">
+          <span class="card-mark" aria-hidden="true">3 gén.</span>
+          <h3>Ouvert à toutes et tous</h3>
+          <p>Touristes, familles, randonneurs, personnes plus isolées : un espace intergénérationnel, accessible au plus grand nombre.</p>
+        </article>
+        <article class="card">
+          <span class="card-mark" aria-hidden="true">365</span>
+          <h3>Un projet qui tient debout</h3>
+          <p>Penser l'activité comme viable économiquement, avec une ouverture à l'année et un espace de restauration.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Philosophie -->
+  <section class="band band-sage" id="philosophie" aria-labelledby="philo-title">
+    <div class="wrap split">
+      <div>
+        <p class="kicker">la philosophie du projet</p>
+        <h2 id="philo-title">L'utilité collective avant le profit</h2>
+        <p class="lead">Le Panorama a toujours été un lieu partagé. Nous voulons qu'il le reste, en le construisant avec celles et ceux qui le feront vivre.</p>
+        <div class="inspi">
+          <h3>Nos inspirations, proches ou lointaines</h3>
+          <ul>
+            <li><b>Carlucciland</b><span>Nouvelle-Zélande</span></li>
+            <li><b>Monte Nova</b><span>Maastricht</span></li>
+          </ul>
+        </div>
+      </div>
+      <ol class="principles">
+        <li><span class="n">1</span><p style="margin:0"><strong>Économie sociale</strong><span>Une finalité d'utilité collective plutôt que le profit individuel.</span></p></li>
+        <li><span class="n">2</span><p style="margin:0"><strong>Co-construction</strong><span>Avancer ensemble et en bonne intelligence, avec la commune, les voisins et les associations.</span></p></li>
+        <li><span class="n">3</span><p style="margin:0"><strong>Un plan financier solide</strong><span>Un projet réaliste, qui peut durer.</span></p></li>
+        <li><span class="n">4</span><p style="margin:0"><strong>Mutualiser les espaces</strong><span>Partager le lieu avec d'autres activités et d'autres acteurs.</span></p></li>
+        <li><span class="n">5</span><p style="margin:0"><strong>Se démarquer</strong><span>Impliquer des artistes, imaginer une activité couverte : un mini-golf qui ne ressemble à aucun autre.</span></p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Où on en est -->
+  <section class="band" id="chemin" aria-labelledby="chemin-title">
+    <div class="wrap">
+      <p class="kicker">où on en est</p>
+      <h2 id="chemin-title">Nos premiers pas depuis janvier 2026</h2>
+      <p class="lead">Avant de rêver trop grand, nous avons frappé aux bonnes portes. Voici les rencontres qui ont lancé le projet.</p>
+      <ol class="path">
+        <li>ASBL « Les Œuvres Paroissiales »</li>
+        <li>ASBL Royal Basket Club d'Esneux</li>
+        <li>Secrétaire général de l'Union belge des mini-golfs</li>
+        <li>Contact avec la commune et le propriétaire de l'Alfa</li>
+        <li>Début d'accompagnement par une Agence-Conseil</li>
+        <li>Le basket renonce à poursuivre l'exploitation</li>
+        <li>Naissance d'un groupe de travail collectif</li>
+      </ol>
+      <p class="note" style="margin-top: 16px">Le 22 juin 2026, une première séance d'information a présenté le projet aux habitants.</p>
+
+      <h3 style="margin-top: 56px">Les prochaines étapes</h3>
+      <div class="next" style="margin-top: 16px">
+        <article><span class="card-mark" aria-hidden="true">a</span><h3>Le modèle</h3><p>Établir le modèle socio-économique : valeurs, missions, partenaires clés, ressources, concurrence.</p></article>
+        <article><span class="card-mark" aria-hidden="true">b</span><h3>Les chiffres</h3><p>Établir un premier plan financier.</p></article>
+        <article><span class="card-mark" aria-hidden="true">c</span><h3>Le financement</h3><p>Subsides sport et tourisme, financeurs publics de l'économie sociale, levée de fonds citoyenne, recettes.</p></article>
+        <article><span class="card-mark" aria-hidden="true">d</span><h3>La forme juridique</h3><p>ASBL ou coopérative ? Choisir la structure la mieux adaptée au projet.</p></article>
+      </div>
+      <p class="coach">Accompagnés pas à pas par une Agence-Conseil en économie sociale</p>
+    </div>
+  </section>
+
+  <!-- Ce que le Panorama peut apporter -->
+  <section class="band bring" aria-labelledby="bring-title">
+    <div class="wrap">
+      <p class="kicker">pourquoi on y croit</p>
+      <h2 id="bring-title">Ce que le Panorama peut apporter</h2>
+      <ul class="bring-list">
+        <li>Un nouvel espace de vie <span>pour Esneux</span></li>
+        <li>Une dynamique positive <span>pour la région</span></li>
+        <li>Un projet fédérateur <span>et intergénérationnel</span></li>
+        <li>Une vitrine sportive, <span>touristique et citoyenne</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- La piste coopérative (repliable) -->
+  <section class="band band-blush" id="cooperative" aria-labelledby="coop-title">
+    <div class="wrap">
+      <div class="coop-intro">
+        <div>
+          <p class="kicker">pour aller plus loin · une piste parmi d'autres</p>
+          <h2 id="coop-title">Et si le Panorama devenait une coopérative ?</h2>
+          <p class="lead">ASBL ou coopérative : le choix n'est pas encore fait. La coopérative citoyenne est l'une des pistes étudiées. Si elle est retenue, voici comment elle fonctionnerait.</p>
+        </div>
+        <button type="button" class="btn btn-ink coop-toggle" id="coop-toggle" aria-expanded="false" aria-controls="coop-panel">
+          <span id="coop-toggle-label">Découvrir la piste coopérative</span>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6 L8 11 L13 6"/></svg>
+        </button>
+      </div>
+
+      <div class="coop-panel" id="coop-panel" hidden>
+        <div class="center">
+          <h2>Être coopérateur,<br>ce n'est pas faire un don</h2>
+          <p class="lead">Un lieu commun devrait appartenir aux personnes qui le font vivre. En prenant des parts, chacun deviendrait copropriétaire du mini-golf.</p>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <span class="card-mark" aria-hidden="true">1 = 1</span>
+            <h3>Vous décidez</h3>
+            <p>À l'assemblée générale, chaque coopérateur vote avec le même poids, quel que soit le nombre de parts. Les choix se font ici, par les gens du coin.</p>
+          </article>
+          <article class="card">
+            <span class="card-mark" aria-hidden="true">€ →</span>
+            <h3>Vous savez où va l'argent</h3>
+            <p>Les excédents servent d'abord à entretenir le lieu. Budget, comptes annuels et décisions sont présentés chaque année à tous les membres.</p>
+          </article>
+          <article class="card">
+            <span class="card-mark" aria-hidden="true">⛳</span>
+            <h3>Vous restez libre</h3>
+            <p>Aucune obligation de participer. Vous êtes invité à l'assemblée et aux chantiers, et vous pouvez récupérer vos parts selon les règles des statuts.</p>
+          </article>
+        </div>
+
+        <div class="coop-block wrap-narrow" style="padding: 0; margin-inline: auto;">
+          <h2 class="center">Comment ça se passerait</h2>
+          <ol class="steps">
+            <li class="step">
+              <span class="step-no">1</span>
+              <div><h3>Je laisse mes coordonnées</h3><p>Je signale mon intérêt et je reçois les nouvelles du projet.</p></div>
+              <span class="chip">Sans engagement</span>
+            </li>
+            <li class="step">
+              <span class="step-no">2</span>
+              <div><h3>Je reçois le dossier</h3><p>Statuts, plan financier et document d'information me sont envoyés avant toute souscription.</p></div>
+              <span class="chip">Sans engagement</span>
+            </li>
+            <li class="step">
+              <span class="step-no">3</span>
+              <div><h3>Je souscris</h3><p>Je signe le bulletin de souscription et je prends le nombre de parts de mon choix. Je deviens coopérateur.</p></div>
+              <span class="chip chip-red">Souscription</span>
+            </li>
+            <li class="step">
+              <span class="step-no">4</span>
+              <div><h3>Je vote et je joue</h3><p>Je participe à l'assemblée générale, aux chantiers participatifs et à la réouverture.</p></div>
+              <span class="chip">Selon mes envies</span>
+            </li>
+          </ol>
+        </div>
+
+        <div class="coop-block split">
+          <div>
+            <h2>Calendrier envisagé</h2>
+            <ol class="timeline">
+              <li><span class="when">Octobre 2026</span><span class="what">Lancement de la communauté</span><span class="chip chip-sun">En cours</span></li>
+              <li><span class="when">Décembre 2026</span><span class="what">Assemblée constitutive</span><span class="chip">À venir</span></li>
+              <li><span class="when">Février–avril 2027</span><span class="what">Ouverture des souscriptions</span><span class="chip">À venir</span></li>
+              <li><span class="when">Avril–juin 2027</span><span class="what">Travaux et chantiers participatifs</span><span class="chip">À venir</span></li>
+              <li><span class="when">Juillet 2027</span><span class="what">Réouverture du parcours</span><span class="chip">À venir</span></li>
+            </ol>
+            <p class="note" style="margin-top: 14px">Dates indicatives, si la forme coopérative est retenue.</p>
+          </div>
+          <div>
+            <h2>Ce que les coopérateurs y gagneraient</h2>
+            <ul class="perks">
+              <li><svg viewBox="0 0 22 22" aria-hidden="true"><line x1="5" y1="2" x2="5" y2="20" stroke="#141414" stroke-width="2" stroke-linecap="round"/><path d="M5 3 L18 7 L5 11 Z" fill="#E3261F"/></svg><span>Leur nom sur le mur des fondateurs, près du trou 18</span></li>
+              <li><svg viewBox="0 0 22 22" aria-hidden="true"><line x1="5" y1="2" x2="5" y2="20" stroke="#141414" stroke-width="2" stroke-linecap="round"/><path d="M5 3 L18 7 L5 11 Z" fill="#E3261F"/></svg><span>Une invitation à la partie d'inauguration</span></li>
+              <li><svg viewBox="0 0 22 22" aria-hidden="true"><line x1="5" y1="2" x2="5" y2="20" stroke="#141414" stroke-width="2" stroke-linecap="round"/><path d="M5 3 L18 7 L5 11 Z" fill="#E3261F"/></svg><span>Un tarif coopérateur toute l'année</span></li>
+              <li><svg viewBox="0 0 22 22" aria-hidden="true"><line x1="5" y1="2" x2="5" y2="20" stroke="#141414" stroke-width="2" stroke-linecap="round"/><path d="M5 3 L18 7 L5 11 Z" fill="#E3261F"/></svg><span>Une place aux chantiers et aux décisions</span></li>
+            </ul>
+            <p class="note" style="margin-top: 14px">Avantages envisagés, à confirmer par l'assemblée générale.</p>
+          </div>
+        </div>
+
+        <div class="coop-block wrap-narrow" style="padding: 0; margin-inline: auto;">
+          <h2 class="center">Questions sur la coopérative</h2>
+          <div class="faq">
+            <details>
+              <summary>Qu'est-ce qu'une part de coopérateur ?</summary>
+              <p>C'est une part du capital de la coopérative. En la souscrivant, vous devenez copropriétaire du projet et membre de l'assemblée générale. Vous pouvez en prendre une ou plusieurs.</p>
+            </details>
+            <details>
+              <summary>Puis-je perdre l'argent investi ?</summary>
+              <p>Oui. Comme tout investissement dans une entreprise, une part de coopérative comporte un risque de perte partielle ou totale du capital. Les parts ne sont pas garanties. N'investissez que ce que vous pouvez immobiliser plusieurs années.</p>
+            </details>
+            <details>
+              <summary>Vais-je toucher un dividende ?</summary>
+              <p>Ce n'est pas le but du projet. Si la coopérative dégage des bénéfices, l'assemblée générale pourra décider d'un dividende limité, dans les conditions prévues par les statuts. La priorité ira à l'entretien du lieu.</p>
+            </details>
+            <details>
+              <summary>Puis-je récupérer mes parts plus tard ?</summary>
+              <p>Oui, sous conditions. Les statuts fixeront les règles de sortie : durée minimale, période de l'année où l'on peut se retirer et valeur de remboursement. Le remboursement dépend aussi de la santé financière de la coopérative.</p>
+            </details>
+          </div>
+          <p class="note" style="margin-top: 18px">Ce site ne constitue pas une offre de parts. Toute souscription se ferait sur la base des statuts et du document d'information remis au préalable.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rejoindre -->
+  <section class="band join" id="rejoindre" aria-labelledby="join-title">
+    <div class="wrap join-grid">
+      <div>
+        <p class="kicker">envie de vous impliquer ?</p>
+        <h2 id="join-title">Écrivons le prochain chapitre ensemble</h2>
+        <p>Un peu (ou beaucoup) de temps à consacrer au projet ? Une compétence à partager ? Ou simplement l'envie de suivre l'aventure ? Laissez-nous vos coordonnées, on vous tient au courant et on vous invite aux prochaines rencontres.</p>
+        <p>Et si vous avez des souvenirs ou de vieilles photos du Panorama, racontez-nous : ils ont toute leur place dans cette histoire.</p>
+        <div class="contact">
+          <div>
+            <p class="label">une question ? écrivez-nous</p>
+            <div class="copy-row">
+              <span class="email" id="email">panoramaesneux@gmail.com</span>
+              <button type="button" class="btn btn-line btn-sm" id="copy-email">Copier l'adresse</button>
+            </div>
+          </div>
+          <div>
+            <p class="label">prochaine réunion publique</p>
+            <p>Jeudi 12 novembre 2026 à 19 h<br>Salle du basket Saint Michel</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="pill-bar">Je m'implique · sans engagement</div>
+        <form class="form" id="inscription" novalidate>
+          <div class="field">
+            <label for="f-prenom">Prénom</label>
+            <input type="text" id="f-prenom" name="prenom" autocomplete="given-name" required aria-describedby="e-prenom">
+            <p class="err" id="e-prenom" hidden>Indiquez votre prénom.</p>
+          </div>
+          <div class="field">
+            <label for="f-nom">Nom</label>
+            <input type="text" id="f-nom" name="nom" autocomplete="family-name" required aria-describedby="e-nom">
+            <p class="err" id="e-nom" hidden>Indiquez votre nom.</p>
+          </div>
+          <div class="field">
+            <label for="f-email">E-mail</label>
+            <input type="email" id="f-email" name="email" autocomplete="email" inputmode="email" required aria-describedby="e-email">
+            <p class="err" id="e-email" hidden>Indiquez une adresse e-mail valide.</p>
+          </div>
+          <div class="field">
+            <label for="f-commune">Commune</label>
+            <input type="text" id="f-commune" name="commune" autocomplete="address-level2" required aria-describedby="e-commune">
+            <p class="err" id="e-commune" hidden>Indiquez votre commune.</p>
+          </div>
+
+          <fieldset class="field field-full">
+            <legend>Ce qui m'intéresse</legend>
+            <div class="helps">
+              <label><input type="checkbox" name="interet" value="Suivre les nouvelles" checked><span>Suivre les nouvelles</span></label>
+              <label><input type="checkbox" name="interet" value="Rejoindre le groupe de travail"><span>Rejoindre le groupe de travail</span></label>
+              <label><input type="checkbox" name="interet" value="Soutenir financièrement"><span>Soutenir financièrement</span></label>
+              <label><input type="checkbox" name="interet" value="Partager des souvenirs"><span>Partager des souvenirs</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="field field-full">
+            <legend>Je peux donner un coup de main <span class="opt">(facultatif)</span></legend>
+            <div class="helps">
+              <label><input type="checkbox" name="aide" value="Chantiers"><span>Chantiers</span></label>
+              <label><input type="checkbox" name="aide" value="Animation"><span>Animation</span></label>
+              <label><input type="checkbox" name="aide" value="Communication"><span>Communication</span></label>
+              <label><input type="checkbox" name="aide" value="Comptabilité"><span>Comptabilité</span></label>
+              <label><input type="checkbox" name="aide" value="Menuiserie"><span>Menuiserie</span></label>
+              <label><input type="checkbox" name="aide" value="Jardinage"><span>Jardinage</span></label>
+              <label><input type="checkbox" name="aide" value="Art et décor"><span>Art et décor</span></label>
+            </div>
+          </fieldset>
+
+          <div class="field field-full">
+            <label for="f-message">Un mot, un souvenir <span class="opt">(facultatif)</span></label>
+            <textarea id="f-message" name="message" rows="3"></textarea>
+          </div>
+
+          <div class="hp" aria-hidden="true">
+            <label for="f-site">Ne pas remplir</label>
+            <input type="text" id="f-site" name="site" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="form-foot">
+            <label class="check"><input type="checkbox" id="f-consent" name="consentement" value="oui" required aria-describedby="e-consent"> <span>J'accepte que mes coordonnées soient utilisées pour m'informer sur le projet. Je peux demander leur suppression à tout moment.</span></label>
+            <p class="err" id="e-consent" hidden>Cochez cette case pour que nous puissions vous écrire.</p>
+            <button type="submit" class="btn btn-orange" id="f-submit">Je m'implique</button>
+            <p class="form-status" id="form-status" role="status" hidden></p>
+            <p class="note">Aucun paiement, aucun engagement.</p>
+          </div>
+        </form>
+
+        <div class="thanks" id="thanks" hidden tabindex="-1">
+          <span class="card-mark" aria-hidden="true">⛳</span>
+          <h3>Merci, <span id="thanks-name"></span> !</h3>
+          <p id="thanks-text">Votre message est bien reçu. Nous vous écrirons dès qu'il y a du nouveau.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="band band-paper2" id="faq" aria-labelledby="faq-title">
+    <div class="wrap wrap-narrow">
+      <div class="center">
+        <p class="kicker">questions fréquentes</p>
+        <h2 id="faq-title">Vous vous demandez peut-être…</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Qui porte le projet ?</summary>
+          <p>Un groupe de travail collectif, formé d'habitants d'Esneux et des environs, accompagné par une Agence-Conseil en économie sociale. Le groupe est ouvert : toute personne motivée peut le rejoindre.</p>
+        </details>
+        <details>
+          <summary>Quand le mini-golf rouvrira-t-il ?</summary>
+          <p>Il est trop tôt pour donner une date. Le modèle du projet, le plan financier et la forme juridique doivent d'abord être établis. Nous partagerons le calendrier dès qu'il sera solide.</p>
+        </details>
+        <details>
+          <summary>ASBL ou coopérative, qu'est-ce qui change ?</summary>
+          <p>Les deux formes relèvent de l'économie sociale. Une coopérative permettrait aux habitants de devenir copropriétaires en prenant des parts ; une ASBL reposerait davantage sur des membres, des subsides et des dons. Le choix se fera avec l'Agence-Conseil, selon ce qui sert le mieux le projet.</p>
+        </details>
+        <details>
+          <summary>Laisser mes coordonnées m'engage-t-il ?</summary>
+          <p>Non. Cela nous aide à mesurer l'intérêt et à vous tenir informé. Vous ne payez rien et pouvez demander la suppression de vos données à tout moment.</p>
+        </details>
+        <details>
+          <summary>Je n'ai pas d'argent à investir. Puis-je participer ?</summary>
+          <p>Bien sûr. Chantiers de rénovation, animation, communication, comptabilité, menuiserie, jardinage, décor : chaque coup de main compte. Signalez-le dans le formulaire.</p>
+        </details>
+        <details>
+          <summary>J'ai des photos ou des souvenirs du Panorama. Ça vous intéresse ?</summary>
+          <p>Énormément. Écrivez-nous à panoramaesneux@gmail.com : nous aimerions rassembler la mémoire du lieu et la partager.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-grid">
+    <div>
+      <span class="stamp"><span>Mini-golf · Esneux</span><b>Le Panorama</b></span>
+      <p>Projet collectif de relance du mini-golf du Panorama, à Esneux.</p>
+    </div>
+    <div>
+      <p>Photos d'archives et photos du parcours : collection du groupe de travail.</p>
+      <p>Vos coordonnées servent uniquement à vous informer sur le projet. Vous pouvez demander leur suppression à tout moment.</p>
+      <p>Contact : panoramaesneux@gmail.com</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  const CONFIG = {
+    // Adresse d'envoi du formulaire (Formspree, Web3Forms, Getform...). Laissée vide, le bouton
+    // « Je m'implique » ouvre la messagerie du visiteur avec un e-mail pré-rempli vers contactEmail.
+    formEndpoint: "",
+    contactEmail: "panoramaesneux@gmail.com"
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  // Piste coopérative repliable
+  const coopToggle = $("coop-toggle");
+  const coopPanel = $("coop-panel");
+  coopToggle.addEventListener("click", () => {
+    const open = coopToggle.getAttribute("aria-expanded") !== "true";
+    coopToggle.setAttribute("aria-expanded", String(open));
+    coopPanel.hidden = !open;
+    $("coop-toggle-label").textContent = open ? "Replier la piste coopérative" : "Découvrir la piste coopérative";
+  });
+
+  // Formulaire
+  const form = $("inscription");
+  const checks = [
+    ["f-prenom", "e-prenom", (el) => el.value.trim() !== ""],
+    ["f-nom", "e-nom", (el) => el.value.trim() !== ""],
+    ["f-email", "e-email", (el) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim())],
+    ["f-commune", "e-commune", (el) => el.value.trim() !== ""],
+    ["f-consent", "e-consent", (el) => el.checked]
+  ];
+  const validate = () => {
+    let firstBad = null;
+    checks.forEach(([id, errId, ok]) => {
+      const el = $(id);
+      const good = ok(el);
+      el.setAttribute("aria-invalid", good ? "false" : "true");
+      $(errId).hidden = good;
+      if (!good && !firstBad) firstBad = el;
+    });
+    if (firstBad) firstBad.focus();
+    return !firstBad;
+  };
+  checks.forEach(([id, errId, ok]) => {
+    const el = $(id);
+    el.addEventListener(el.type === "checkbox" ? "change" : "input", () => {
+      if (el.getAttribute("aria-invalid") === "true" && ok(el)) {
+        el.setAttribute("aria-invalid", "false");
+        $(errId).hidden = true;
+      }
+    });
+  });
+
+  const status = $("form-status");
+  const showStatus = (msg, isError) => {
+    status.textContent = msg;
+    status.classList.toggle("is-error", !!isError);
+    status.hidden = false;
+  };
+  const showThanks = (prenom, text) => {
+    $("thanks-name").textContent = prenom;
+    if (text) $("thanks-text").textContent = text;
+    form.hidden = true;
+    $("thanks").hidden = false;
+    $("thanks").focus();
+  };
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    status.hidden = true;
+    if ($("f-site").value) return; // robot
+    if (!validate()) return;
+
+    const data = new FormData(form);
+    data.delete("site");
+    const interets = data.getAll("interet");
+    const aides = data.getAll("aide");
+    const prenom = data.get("prenom").trim();
+
+    if (!CONFIG.formEndpoint) {
+      const lines = [
+        "Bonjour,",
+        "",
+        "Je souhaite m'impliquer dans le projet de relance du mini-golf du Panorama.",
+        "",
+        "Prénom : " + prenom,
+        "Nom : " + data.get("nom").trim(),
+        "E-mail : " + data.get("email").trim(),
+        "Commune : " + data.get("commune").trim(),
+        "Intérêt : " + (interets.length ? interets.join(", ") : "—"),
+        "Coup de main : " + (aides.length ? aides.join(", ") : "—"),
+        "",
+        data.get("message").trim(),
+        "",
+        "J'accepte que mes coordonnées soient utilisées pour m'informer sur le projet."
+      ];
+      const href = "mailto:" + CONFIG.contactEmail
+        + "?subject=" + encodeURIComponent("Je m'implique : " + prenom + " " + data.get("nom").trim())
+        + "&body=" + encodeURIComponent(lines.join("\n"));
+      window.location.href = href;
+      showThanks(prenom, "Votre messagerie s'est ouverte avec un e-mail pré-rempli. Il ne reste qu'à l'envoyer. Si rien ne s'est ouvert, écrivez-nous à " + CONFIG.contactEmail + ".");
+      return;
+    }
+
+    data.set("interet", interets.join(", "));
+    data.set("aide", aides.join(", "));
+    data.set("_subject", "Je m'implique : " + prenom + " " + data.get("nom").trim());
+    const btn = $("f-submit");
+    btn.disabled = true;
+    btn.textContent = "Envoi…";
+    fetch(CONFIG.formEndpoint, { method: "POST", body: data, headers: { Accept: "application/json" } })
+      .then((res) => {
+        if (!res.ok) throw new Error(String(res.status));
+        showThanks(prenom);
+      })
+      .catch(() => {
+        showStatus("L'envoi n'a pas fonctionné. Réessayez ou écrivez-nous à " + CONFIG.contactEmail + ".", true);
+      })
+      .finally(() => {
+        btn.disabled = false;
+        btn.textContent = "Je m'implique";
+      });
+  });
+
+  // Contact
+  $("email").textContent = CONFIG.contactEmail;
+  const copyBtn = $("copy-email");
+  let resetTimer;
+  copyBtn.addEventListener("click", () => {
+    const done = (msg) => {
+      copyBtn.textContent = msg;
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => { copyBtn.textContent = "Copier l'adresse"; }, 2200);
+    };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(CONFIG.contactEmail).then(() => done("Adresse copiée"), () => done("Sélectionnez l'adresse"));
+    } else {
+      done("Sélectionnez l'adresse");
+    }
+  });
+
+  // Barre compacte après l'accueil
+  const bar = $("bar");
+  const hero = $("accueil");
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([e]) => bar.classList.toggle("show", !e.isIntersecting), { rootMargin: "-80px 0px 0px 0px" }).observe(hero);
+  }
+
+  // Menu mobile
+  const drawer = $("drawer");
+  let lastFocus = null;
+  const openMenu = () => {
+    lastFocus = document.activeElement;
+    drawer.hidden = false;
+    document.body.style.overflow = "hidden";
+    $("close-menu").focus();
+  };
+  const closeMenu = () => {
+    drawer.hidden = true;
+    document.body.style.overflow = "";
+    if (lastFocus) lastFocus.focus();
+  };
+  document.querySelectorAll("[data-open-menu]").forEach((b) => b.addEventListener("click", openMenu));
+  $("close-menu").addEventListener("click", closeMenu);
+  drawer.querySelectorAll("a").forEach((a) => a.addEventListener("click", closeMenu));
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !drawer.hidden) closeMenu(); });
+})();
+</script>
+</body>
+</html>
